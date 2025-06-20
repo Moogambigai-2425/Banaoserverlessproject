@@ -1,0 +1,39 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: banaoserverlessproject
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: email-service-app
+service: banaoserverlessproject
+custom:
+  serverless-offline:
+    noPrependStageInUrl: true  # Removes /dev prefix
+    httpPort: 3000
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ''
+  environment:
+    IS_OFFLINE: "${env:IS_OFFLINE, 'false'}"
+    EMAIL_SOURCE: moogambigai2370071@ssn.edu.in # SES verified email
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "ses:SendEmail"
+            - "ses:SendRawEmail"
+          Resource: "*"
+
+functions:
+  sendEmail:
+    handler: handler.sendEmail
+    timeout: 30
+    events:
+      - http:
+          path: /send-email
+          method: post
+          cors: true
+
+plugins:
+  - serverless-offline
